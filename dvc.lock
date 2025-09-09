@@ -1,0 +1,120 @@
+schema: '2.0'
+stages:
+  dowload_pages:
+    cmd: python download_site.py --output data/pages.csv --workers 5
+    deps:
+    - path: download_site.py
+      hash: md5
+      md5: b31467c72d70d35988b5c2dcab505d9c
+      size: 3508
+    outs:
+    - path: data/pages.csv
+      hash: md5
+      md5: 33afa9f0bc2b10fe8e8900a4f9c99f93
+      size: 292830963
+  make_annotations:
+    cmd: python annotate_texts.py
+    deps:
+    - path: annotate_texts.py
+      hash: md5
+      md5: 803fbcc09411b2633607b6d5e994844b
+      size: 7357
+    - path: data/pages.csv
+      hash: md5
+      md5: 33afa9f0bc2b10fe8e8900a4f9c99f93
+      size: 292830963
+    - path: data/pathfinder_json.csv
+      hash: md5
+      md5: 7ce4a4635e29a387f4e5d5dbacee111e
+      size: 23675060
+    outs:
+    - path: data/annotations.csv
+      hash: md5
+      md5: 5fa13de868dcd34c8615db7aa6ba579a
+      size: 1330006
+    - path: data/texts.csv
+      hash: md5
+      md5: 8e6f12d0cb6ea45e97ea9d87485b82d2
+      size: 38110469
+  make_datasets:
+    cmd: python create_datasets.py --texts data/texts.csv --annotations data/annotations.csv
+      --max_length 512
+    deps:
+    - path: create_datasets.py
+      hash: md5
+      md5: ffd49516504c5579d42ec133a3eda84c
+      size: 4355
+    - path: data/annotations.csv
+      hash: md5
+      md5: 5fa13de868dcd34c8615db7aa6ba579a
+      size: 1330006
+    - path: data/texts.csv
+      hash: md5
+      md5: 8e6f12d0cb6ea45e97ea9d87485b82d2
+      size: 38110469
+    - path: ner_dataset.py
+      hash: md5
+      md5: ff6c0e629f415d3efb145b76b9b76348
+      size: 3807
+    params:
+      params.yaml:
+        base-model: cointegrated/rubert-tiny2
+    outs:
+    - path: data/ner_dataset
+      hash: md5
+      md5: e83d5f33f027cbb71aaeb7adb7ba619c.dir
+      size: 71782838
+      nfiles: 5
+  pathfinder_downloader:
+    cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
+      3
+    deps:
+    - path: download_pathfinder.py
+      hash: md5
+      md5: dbbf73c186ee68adc79cee239d586c5d
+      size: 3676
+    outs:
+    - path: data/pathfinder_json.csv
+      hash: md5
+      md5: 7ce4a4635e29a387f4e5d5dbacee111e
+      size: 23675060
+  train:
+    cmd: python train_model.py
+    deps:
+    - path: data/ner_dataset/labels.txt
+      hash: md5
+      md5: 3569504ffcfd1ff47ea6011f904f0e8c
+      size: 52
+    - path: data/ner_dataset/test_dataset.pt
+      hash: md5
+      md5: 0d22d8096e59813714615ffbc94e6295
+      size: 9197451
+    - path: data/ner_dataset/train_dataset.pt
+      hash: md5
+      md5: bb9af32fc7cf3574b4c3acb612cb6c4b
+      size: 53067025
+    - path: data/ner_dataset/val_dataset.pt
+      hash: md5
+      md5: cb727c1f4357dba330793ba1f1050d6e
+      size: 9308101
+    - path: train_model.py
+      hash: md5
+      md5: 7d7ee9f217d27bb42bb26355bd556103
+      size: 3551
+    params:
+      params.yaml:
+        base-model: cointegrated/rubert-tiny2
+        train:
+          epoches: 50
+          lr: 1e-05
+          batch-size: 32
+          num-workers: 5
+          freeze: false
+          dropout_rate: 0.1
+          use_prev_label: true
+    outs:
+    - path: models
+      hash: md5
+      md5: 14fb0e0f1341cc06022fffc6d837c373.dir
+      size: 116899106
+      nfiles: 1

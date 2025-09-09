@@ -1,0 +1,10 @@
+base-model: cointegrated/rubert-tiny2
+
+train:
+  epoches: 50
+  lr: 0.00001
+  batch-size: 32
+  num-workers: 5
+  freeze: false
+  dropout_rate: 0.1
+  use_prev_label: true

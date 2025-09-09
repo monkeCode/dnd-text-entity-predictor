@@ -1,0 +1,59 @@
+stages:
+  dowload_pages:
+    cmd: python download_site.py --output data/pages.csv --workers 5
+    deps:
+    - download_site.py
+    outs:
+    - data/pages.csv
+  make_annotations:
+    cmd: python annotate_texts.py
+    deps:
+    - annotate_texts.py
+    - data/pages.csv
+    - data/pathfinder_json.csv
+    outs:
+    - data/annotations.csv
+    - data/texts.csv
+  make_datasets:
+    cmd: python create_datasets.py --texts data/texts.csv --annotations data/annotations.csv
+      --max_length 512
+    deps:
+    - create_datasets.py
+    - data/annotations.csv
+    - data/texts.csv
+    - ner_dataset.py
+    outs:
+    - data/ner_dataset
+    params:
+    - base-model
+  pathfinder_downloader:
+    cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
+      3
+    deps:
+    - download_pathfinder.py
+    outs:
+    - data/pathfinder_json.csv
+  train:
+    cmd: python train_model.py
+    deps:
+    - data/ner_dataset/labels.txt
+    - data/ner_dataset/test_dataset.pt
+    - data/ner_dataset/train_dataset.pt
+    - data/ner_dataset/val_dataset.pt
+    - train_model.py
+    params:
+    - train
+    - base-model
+    outs:
+    - models
+params:
+- dvclive/params.yaml
+metrics:
+- dvclive/metrics.json
+plots:
+- dvclive/plots/metrics:
+    x: step
+artifacts:
+  best:
+    path: dvclive/artifacts/epoch=49-step=25150-v1.ckpt
+    type: model
