@@ -131,28 +131,18 @@
     </div>
 
     <script>
-        // Цвета для различных классов сущностей
         const entityColors = {
-            'PERSON': '#FF9999',
-            'ORG': '#99CCFF',
-            'GPE': '#99FF99',
-            'LOC': '#FFCC99',
-            'DATE': '#CC99FF',
-            'TIME': '#FF99CC',
-            'MONEY': '#FFFF99',
-            'PERCENT': '#99FFFF',
-            'PRODUCT': '#FFCCCC',
-            'EVENT': '#CCFFCC'
+            'MONSTER': '#FF9999',
+            'SPELL': '#99CCFF',
+            'ITEM': '#99FF99',
         };
         
-        // Функция для получения цвета для класса сущности
+        
         function getColorForClass(className) {
-            // Если класс есть в предопределенных цветах, используем его
             if (entityColors[className]) {
                 return entityColors[className];
             }
             
-            // Иначе генерируем цвет на основе хеша строки
             let hash = 0;
             for (let i = 0; i < className.length; i++) {
                 hash = className.charCodeAt(i) + ((hash << 5) - hash);
@@ -173,7 +163,6 @@
                 return;
             }
 
-            // Показываем индикатор загрузки
             loadingDiv.style.display = 'block';
             resultsDiv.innerHTML = '';
 
@@ -195,7 +184,6 @@
             } catch (error) {
                 resultsDiv.innerHTML = `<p>Error: ${error.message}</p>`;
             } finally {
-                // Скрываем индикатор загрузки
                 loadingDiv.style.display = 'none';
             }
         }
@@ -206,38 +194,31 @@
             const text = document.getElementById('textInput').value;
             const entities = result.predictions;
 
-            // Создаем объект для отслеживания использованных классов и их цветов
             const classColors = {};
 
-            // Отобразим исходный текст
             let outputHTML = '<h3>Results:</h3><div class="text-output">';
 
-            // Отсортируем сущности по позиции начала
             entities.sort((a, b) => a.start - b.start);
 
             let lastPos = 0;
             for (let entity of entities) {
-                // Добавляем текст до сущности
+
                 outputHTML += escapeHtml(text.substring(lastPos, entity.start));
 
-                // Получаем цвет для класса сущности
-                if (!classColors[entity.class]) {
-                    classColors[entity.class] = getColorForClass(entity.class);
+                if (!classColors[entity.label]) {
+                    classColors[entity.label] = getColorForClass(entity.label);
                 }
-                const color = classColors[entity.class];
+                const color = classColors[entity.label];
 
-                // Добавляем сущность с маркером
                 const entityText = escapeHtml(text.substring(entity.start, entity.end));
-                outputHTML += `<span class="entity" style="border-color: ${color};" data-class="${escapeHtml(entity.class)}">${entityText}</span>`;
+                outputHTML += `<span class="entity" style="border-color: ${color};" data-class="${escapeHtml(entity.label)}">${entityText}</span>`;
 
                 lastPos = entity.end;
             }
 
-            // Добавляем оставшийся текст после последней сущности
             outputHTML += escapeHtml(text.substring(lastPos));
             outputHTML += '</div>';
 
-            // Добавляем легенду, если есть сущности
             if (Object.keys(classColors).length > 0) {
                 outputHTML += '<div class="legend"><strong>Legend:</strong>';
                 for (const [className, color] of Object.entries(classColors)) {
@@ -246,11 +227,9 @@
                 outputHTML += '</div>';
             }
 
-            // Отобразим результат
             resultsDiv.innerHTML = outputHTML;
         }
 
-        // Вспомогательная функция для экранирования HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;

@@ -16,7 +16,6 @@ class NERModel(pl.LightningModule):
         self.use_prev_label = use_prev_label
         self.num_labels = num_labels
         
-        # Загрузка предобученной модели
         self.bert = AutoModelForTokenClassification.from_pretrained(
             model_name,
             num_labels=num_labels,
@@ -25,28 +24,22 @@ class NERModel(pl.LightningModule):
         ).bert
         self.bert.train()
         
-        # Замораживаем параметры BERT, если нужно
         if freeze:
             for param in self.bert.parameters():
                 param.requires_grad = False
             
-            # Размораживаем последние несколько слоев
             for layer in self.bert.encoder.layer[-2:]:
                 for param in layer.parameters():
                     param.requires_grad = True
         
-        # Размерность эмбеддингов BERT
         bert_hidden_size = self.bert.config.hidden_size
         
-        # Если используем предыдущие метки, добавляем их эмбеддинги
         if self.use_prev_label:
-            # One-hot кодирование предыдущих меток + эмбеддинг
-            self.label_embedding = nn.Linear(num_labels+1, 32)  # Линейный слой вместо Embedding
+            self.label_embedding = nn.Linear(num_labels+1, 32)  
             classifier_input_size = bert_hidden_size + 32
         else:
             classifier_input_size = bert_hidden_size
         
-        # MLP классификатор
         self.classifier = nn.Sequential(
             nn.Linear(classifier_input_size, hidden_size),
             nn.ReLU(),
@@ -60,10 +53,8 @@ class NERModel(pl.LightningModule):
         self.dropout = nn.Dropout(dropout_rate)
         self.learning_rate = learning_rate
         
-        # Инициализируем метрики
         self._init_metrics(num_labels)
         
-        # Для teacher forcing
         self.start_label_id = num_labels  # Специальный ID для начала последовательности
 
         self.loss_fct = nn.CrossEntropyLoss(ignore_index=-100)
@@ -97,51 +88,38 @@ class NERModel(pl.LightningModule):
 
 
     def forward(self, input_ids, attention_mask, labels=None, prev_labels_onehot=None):
-        # Получаем эмбеддинги от BERT
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         sequence_output = outputs.last_hidden_state
         sequence_output = self.dropout(sequence_output)
         
-        # Если используем предыдущие метки, но они не предоставлены - используем авторегрессию
         if self.use_prev_label and prev_labels_onehot is None:
-            # Авторегрессионный режим
             batch_size, seq_len = input_ids.shape
             device = input_ids.device
             
-            # Инициализируем все предсказания как начальный токен
             preds = torch.full((batch_size, seq_len), self.start_label_id, 
                               dtype=torch.long, device=device)
             logits = torch.full((batch_size, seq_len, self.num_labels), 0.0, device=device)
-            # Авторегрессионное предсказание: предсказываем каждый токен последовательно
+
             for i in range(seq_len):
-                # Создаем one-hot представление предыдущих предсказаний
                 current_prev_labels_onehot = F.one_hot(preds, num_classes=self.num_labels+1).float()
                 
-                # Получаем эмбеддинги предыдущих меток
                 label_embeddings = self.label_embedding(current_prev_labels_onehot)
                 
-                # Конкатенируем эмбеддинги BERT с эмбеддингами меток
                 combined_output = torch.cat([sequence_output, label_embeddings], dim=-1)
                 
-                # Пропускаем через классификатор
                 l = self.classifier(combined_output)
                 logits[:, i] = l[:, i]
-                # Обновляем предсказание только для текущей позиции
                 current_preds = torch.argmax(l[:, i, :], dim=-1)
                 preds[:, i] = current_preds
         
-        # Стандартный режим (с предоставленными prev_labels_onehot)
         elif self.use_prev_label and prev_labels_onehot is not None:
-            # Получаем эмбеддинги предыдущих меток
             label_embeddings = self.label_embedding(prev_labels_onehot)
             
-            # Конкатенируем эмбеддинги BERT с эмбеддингами меток
             combined_output = torch.cat([sequence_output, label_embeddings], dim=-1)
             logits = self.classifier(combined_output)
         else:
             logits = self.classifier(sequence_output)
         
-        # Вычисляем потери, если предоставлены метки
         loss = None
         if labels is not None:
 
@@ -150,7 +128,6 @@ class NERModel(pl.LightningModule):
         return {"loss": loss, "logits": logits}
 
     def _log_metrics_per_label(self, phase, precision_metric, recall_metric, f1_metric):
-        # Логируем метрики для каждого класса
         precision_scores = precision_metric.compute()
         recall_scores = recall_metric.compute()
         f1_scores = f1_metric.compute()
@@ -162,7 +139,6 @@ class NERModel(pl.LightningModule):
             self.log(f'{phase}_f1_{label_name}', f1)
 
     def _get_prev_labels_onehot(self, labels):
-        # Создаем one-hot кодирование предыдущих меток
         batch_size, seq_len = labels.shape
         prev_labels = torch.cat([
             torch.full((batch_size, 1), self.start_label_id, dtype=torch.long, device=labels.device),
@@ -175,10 +151,8 @@ class NERModel(pl.LightningModule):
         return prev_labels_onehot
 
     def training_step(self, batch, batch_idx):
-        # Подготавливаем предыдущие метки для teacher forcing
         prev_labels_onehot = self._get_prev_labels_onehot(batch['labels'])
         
-        # Прямой проход
         outputs = self(
             input_ids=batch['input_ids'],
             attention_mask=batch['attention_mask'],
@@ -187,12 +161,10 @@ class NERModel(pl.LightningModule):
         )
         loss = outputs["loss"]
 
-        # Получаем предсказания
         logits = outputs["logits"]
         preds = torch.argmax(logits, dim=-1)
 
 
-        # Обновляем метрики
         self.train_precision(preds, batch['labels'])
         self.train_recall(preds, batch['labels'])
         self.train_f1(preds, batch['labels'])
@@ -212,7 +184,6 @@ class NERModel(pl.LightningModule):
                                   self.train_precision_per_label,
                                   self.train_recall_per_label,
                                   self.train_f1_per_label)
-        # Сбрасываем метрики после логирования
         self.train_precision_per_label.reset()
         self.train_recall_per_label.reset()
         self.train_f1_per_label.reset()
@@ -220,8 +191,7 @@ class NERModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
 
         prev_labels_onehot = self._get_prev_labels_onehot(batch['labels'])
-        
-        # Прямой проход
+
         outputs = self(
             input_ids=batch['input_ids'],
             attention_mask=batch['attention_mask'],
@@ -230,12 +200,10 @@ class NERModel(pl.LightningModule):
         )
         loss = outputs["loss"]
 
-        # Получаем предсказания
         logits = outputs["logits"]
         preds = torch.argmax(logits, dim=-1)
 
 
-        # Обновляем метрики
         self.val_precision(preds, batch['labels'])
         self.val_recall(preds, batch['labels'])
         self.val_f1(preds, batch['labels'])
@@ -256,14 +224,12 @@ class NERModel(pl.LightningModule):
                                   self.val_recall_per_label,
                                   self.val_f1_per_label)
         
-        # Сбрасываем метрики после логирования
         self.val_precision_per_label.reset()
         self.val_recall_per_label.reset()
         self.val_f1_per_label.reset()
 
     def test_step(self, batch, batch_idx):
         
-        # Прямой проход
         outputs = self(
             input_ids=batch['input_ids'],
             attention_mask=batch['attention_mask'],
@@ -272,12 +238,10 @@ class NERModel(pl.LightningModule):
         )
         loss = outputs["loss"]
 
-        # Получаем предсказания
         logits = outputs["logits"]
         preds = torch.argmax(logits, dim=-1)
 
 
-        # Обновляем метрики
         self.test_precision(preds, batch['labels'])
         self.test_recall(preds, batch['labels'])
         self.test_f1(preds, batch['labels'])
@@ -297,7 +261,7 @@ class NERModel(pl.LightningModule):
                                   self.test_precision_per_label,
                                   self.test_recall_per_label,
                                   self.test_f1_per_label)
-        # Сбрасываем метрики после логирования
+
         self.test_precision_per_label.reset()
         self.test_recall_per_label.reset()
         self.test_f1_per_label.reset()
