@@ -16,7 +16,6 @@ stages:
     - data/texts.csv
   make_datasets:
     cmd: python create_datasets.py --texts data/texts.csv --annotations data/annotations.csv
-      --max_length 512
     deps:
     - create_datasets.py
     - data/annotations.csv
@@ -26,6 +25,7 @@ stages:
     - data/ner_dataset
     params:
     - base-model
+    - max-tokens
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
       3

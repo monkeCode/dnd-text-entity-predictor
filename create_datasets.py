@@ -18,8 +18,6 @@ parser.add_argument('--annotations', type=str, required=True, help='Path to anno
 #                     help='HuggingFace model name (default: ai-forever/ruBert-base)')
 parser.add_argument('--output_dir', type=str, default='data/ner_dataset',
                     help='Output directory for dataset (default: data/ner_dataset)')
-parser.add_argument('--max_length', type=int, default=512,
-                    help='Maximum sequence length (default: 512)')
 parser.add_argument('--train_ratio', type=float, default=0.8,
                     help='Ratio of data for training (default: 0.8)')
 parser.add_argument('--val_ratio', type=float, default=0.1,
@@ -51,11 +49,11 @@ with open(os.path.join(args.output_dir, 'labels.txt'), 'w') as f:
 # Инициализация токенизатора
 model_name = params["base-model"]
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-
+max_length = params["max-tokens"]
 
 
 # Разделение данных на train/val/test
-text_ids = texts_df['id'].unique()
+text_ids = texts_df['unique_id'].unique()
 np.random.seed(args.seed)
 np.random.shuffle(text_ids)
 
@@ -66,9 +64,9 @@ train_ids = text_ids[:train_size]
 val_ids = text_ids[train_size:train_size + val_size]
 test_ids = text_ids[train_size + val_size:]
 
-train_texts = texts_df[texts_df['id'].isin(train_ids)]
-val_texts = texts_df[texts_df['id'].isin(val_ids)]
-test_texts = texts_df[texts_df['id'].isin(test_ids)]
+train_texts = texts_df[texts_df['unique_id'].isin(train_ids)]
+val_texts = texts_df[texts_df['unique_id'].isin(val_ids)]
+test_texts = texts_df[texts_df['unique_id'].isin(test_ids)]
 
 train_annotations = annotations_df[annotations_df['text_id'].isin(train_ids)]
 val_annotations = annotations_df[annotations_df['text_id'].isin(val_ids)]
@@ -76,9 +74,9 @@ test_annotations = annotations_df[annotations_df['text_id'].isin(test_ids)]
 
 # Создание датасетов
 print("Creating datasets...")
-train_dataset = NERDataset(train_texts, train_annotations, tokenizer, args.max_length, label2id)
-val_dataset = NERDataset(val_texts, val_annotations, tokenizer, args.max_length, label2id)
-test_dataset = NERDataset(test_texts, test_annotations, tokenizer, args.max_length, label2id)
+train_dataset = NERDataset(train_texts, train_annotations, tokenizer,max_length , label2id)
+val_dataset = NERDataset(val_texts, val_annotations, tokenizer, max_length, label2id)
+test_dataset = NERDataset(test_texts, test_annotations, tokenizer, max_length, label2id)
 
 # Сохранение датасетов
 print("Saving datasets...")

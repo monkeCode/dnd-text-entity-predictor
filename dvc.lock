@@ -17,8 +17,8 @@ stages:
     deps:
     - path: annotate_texts.py
       hash: md5
-      md5: 803fbcc09411b2633607b6d5e994844b
-      size: 7357
+      md5: 214974cc43073c3ee08debbcac15b542
+      size: 7786
     - path: data/pages.csv
       hash: md5
       md5: 33afa9f0bc2b10fe8e8900a4f9c99f93
@@ -30,28 +30,27 @@ stages:
     outs:
     - path: data/annotations.csv
       hash: md5
-      md5: 5fa13de868dcd34c8615db7aa6ba579a
-      size: 1330006
+      md5: 0834f3b62be79911efbf35f19b9dc998
+      size: 1372610
     - path: data/texts.csv
       hash: md5
-      md5: 8e6f12d0cb6ea45e97ea9d87485b82d2
-      size: 38110469
+      md5: 2e959a01bede0237b9997115863d7e2d
+      size: 29689442
   make_datasets:
     cmd: python create_datasets.py --texts data/texts.csv --annotations data/annotations.csv
-      --max_length 512
     deps:
     - path: create_datasets.py
       hash: md5
-      md5: ffd49516504c5579d42ec133a3eda84c
-      size: 4355
+      md5: ef9a0a399902f0d67f640cf02439d069
+      size: 4275
     - path: data/annotations.csv
       hash: md5
-      md5: 5fa13de868dcd34c8615db7aa6ba579a
-      size: 1330006
+      md5: 0834f3b62be79911efbf35f19b9dc998
+      size: 1372610
     - path: data/texts.csv
       hash: md5
-      md5: 8e6f12d0cb6ea45e97ea9d87485b82d2
-      size: 38110469
+      md5: 2e959a01bede0237b9997115863d7e2d
+      size: 29689442
     - path: ner_dataset.py
       hash: md5
       md5: ff6c0e629f415d3efb145b76b9b76348
@@ -59,11 +58,12 @@ stages:
     params:
       params.yaml:
         base-model: cointegrated/rubert-tiny2
+        max-tokens: 200
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: e83d5f33f027cbb71aaeb7adb7ba619c.dir
-      size: 71782838
+      md5: 2a56a629552980c8285b5242921b2b4d.dir
+      size: 58287028
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay

@@ -1,3 +1,4 @@
+from typing import Any
 import requests
 import bs4
 import pandas as pd
@@ -56,29 +57,35 @@ def decompose_tag(text, sub_page: bs4.BeautifulSoup | bs4.PageElement, start_idx
 
     return text, links
 
-def parse_page(page_html):
+def parse_page(page_html) -> tuple[list[Any], list[Any]]:
+    texts = []
+    annots = []
     try:
         page = bs4.BeautifulSoup(page_html, 'html.parser')
-        content = page.find(class_="card__body new-article")
+        content: bs4.Tag = page.find(class_="card__body new-article")
         if not content:
-            return None, []
-        
-        # text = content.text
-        text, annotations = decompose_tag("", content)
-        return text, annotations
+            return texts, annots
+
+        for p in [ it for d in content.find_all(class_="subsection desc") for it in (d.find_all("p") + d.find_all("ul") + (d.find_all("td")))]:
+            if len(p.text) < 10: continue
+            text, annotations = decompose_tag("", p)
+            texts.append(text)
+            annots.append(annotations)
+
+        return texts, annots
     except Exception as e:
         print(f"Error parsing page: {e}")
-        return None, []
+        return texts, annots
 
 def parse_pathfinder_page(page_html):
     try:
         page = bs4.BeautifulSoup(page_html, "html.parser")
         # text = page.text
         text, annotations = decompose_tag("", page)
-        return text, annotations
+        return [text], [annotations]
     except Exception as e:
         print(f"Error parsing page: {e}")
-        return None, []
+        return [], []
 
 def parse_json(js):
     texts = []
@@ -145,7 +152,7 @@ pathfinder_pages = pd.DataFrame([{"href": i["href"], "page":text, "code":200 } f
 
 # Чтение входных данных
 print(f"Reading input from {args.input}")
-df = pd.concat([pathfinder_pages, pd.read_csv(args.input)], axis=0)
+df = pd.concat([pd.read_csv(args.input),pathfinder_pages], axis=0)
 df.reset_index(inplace=True)
 
 # Обработка страниц
@@ -164,19 +171,19 @@ for idx, row in tqdm(df.iterrows(), total=len(df)):
     
     # Парсим страницу
     if "pathfinder.family" in href:
-        text,annotations = parse_pathfinder_page(page_html)
+        texts, annotations_list = parse_pathfinder_page(page_html)
     else:
-        text, annotations = parse_page(page_html)
-    
-    if text is not None:
+        texts, annotations_list = parse_page(page_html)
+    for t_i, (text, annotations) in enumerate(zip(texts, annotations_list)):
         augmented_variants = augment_text(text, annotations)
         for variant_id, (variant_text, variant_annotations) in enumerate(augmented_variants):
-            new_id = f"{idx}_{variant_id}"
+            new_id = f"{idx}_{t_i}_{variant_id}"
             texts_data.append({
                 'id': new_id,
                 'href': href,
                 'text': variant_text,
-                'variant': variant_id
+                'variant': variant_id,
+                "unique_id": f"{idx}_{t_i}"
             })
             
             for ann in variant_annotations:
