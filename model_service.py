@@ -36,18 +36,65 @@ class Item(BaseModel):
     batch: List[Dict[str, str]]
 
 @torch.no_grad()
-def predict(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, return_offsets_mapping=True)
-    logits = model(input_ids=inputs["input_ids"], attention_mask=inputs["attention_mask"], labels=None)["logits"].squeeze(0)
-    preds = torch.argmax(logits, dim=-1).tolist()
-    tokens = tokenizer.convert_ids_to_tokens(inputs["input_ids"].tolist()[0])
-    offsets = inputs["offset_mapping"].tolist()[0]
-    tokens_with_preds = list(zip(tokens, preds, offsets))
+def predict(text, max_length=200, overlap=0):
+    # Токенизируем весь текст для получения смещений
+    full_inputs = tokenizer(text, return_offsets_mapping=True, truncation=False, return_tensors="pt")
+    full_offsets = full_inputs["offset_mapping"].squeeze(0).tolist()
+    
+    # Инициализируем массивы для агрегации предсказаний
+    all_logits = torch.zeros(len(full_offsets), NUM_LABELS)
+    count = torch.zeros(len(full_offsets))
+    
+    # Определяем размер чанка и перекрытия
+    chunk_size = max_length - 2  # -2 для [CLS] и [SEP]
+    stride = int(chunk_size * (1 - overlap))
+    
+    # Обрабатываем текст чанками
+    for start in range(0, len(full_offsets), stride):
+        end = start + chunk_size
+        chunk_text = text[full_offsets[start][0]:full_offsets[min(end, len(full_offsets)-2)][1]]
+        
+        # Токенизируем чанк
+        inputs = tokenizer(
+            chunk_text,
+            return_tensors="pt",
+            truncation=True,
+            padding=True,
+            return_offsets_mapping=True,
+            max_length=max_length
+        )
+        
+        # Получаем предсказания для чанка
+        outputs = model(
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs["attention_mask"]
+        )
+        logits = outputs["logits"].squeeze(0)
+        
+        # Сопоставляем предсказания с исходными токенами
+        chunk_offsets = inputs["offset_mapping"].squeeze(0).tolist()
+        for i, (chunk_start, chunk_end) in enumerate(chunk_offsets):
+            if chunk_start == chunk_end == 0:  # Специальные токены
+                continue
+            
+            # Находим соответствующий токен в полной последовательности
+            original_idx = start + i
+            if original_idx >= len(all_logits):
+                continue
+                
+            all_logits[original_idx] += logits[i]
+            count[original_idx] += 1
 
-    return tokens_with_preds
+    # Усредняем предсказания
+    averaged_logits = all_logits / count.unsqueeze(1)
+    preds = torch.argmax(averaged_logits, dim=-1).tolist()
+    
+    # Формируем результат
+    tokens = tokenizer.convert_ids_to_tokens(full_inputs["input_ids"].squeeze(0))
+    return list(zip(tokens, preds, full_offsets))
 
-def exist_next(preds:list, label:str, index):
-    for i in range(index, len(preds)):
+def exist_next(preds:list, label:str, index, max=3):
+    for i in range(index, min(len(preds), index + max) ):
         if preds[i][1] == 0:
             continue
         if preds[i][1] % 2 == 1:
