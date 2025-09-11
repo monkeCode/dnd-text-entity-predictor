@@ -87,16 +87,16 @@ stages:
       size: 52
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 028dd0ea6b4e49294d12a74df08b0d71
-      size: 8041867
+      md5: 1eba2308e4fdb01f85cb4b0272414734
+      size: 9378827
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 15f664de47ad5ee17f4d8e60dc075587
-      size: 43401873
+      md5: 50a7bde7341c9647363eb0d402084fc3
+      size: 52507857
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: 3a66e9419ae88ae9f791d936dbcdd1e4
-      size: 8098501
+      md5: a6a2743ba977c19f26cf85f040e1fb4c
+      size: 9284101
     - path: train_model.py
       hash: md5
       md5: 7d7ee9f217d27bb42bb26355bd556103
@@ -111,10 +111,10 @@ stages:
           num-workers: 5
           freeze: false
           dropout_rate: 0.1
-          use_prev_label: true
+          use_prev_label: false
     outs:
     - path: models
       hash: md5
-      md5: 7edf7242d64b5bc0aaef2883f3de503e.dir
-      size: 116899106
+      md5: a48d4b77919e66298ece8871a3588629.dir
+      size: 116999748
       nfiles: 1

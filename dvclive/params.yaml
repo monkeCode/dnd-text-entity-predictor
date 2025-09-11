@@ -20,4 +20,4 @@ learning_rate: 1e-05
 freeze: false
 hidden_size: 256
 dropout_rate: 0.1
-use_prev_label: true
+use_prev_label: false
