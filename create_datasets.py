@@ -12,10 +12,8 @@ import dvc.api
 params = dvc.api.params_show()
 # Настройка аргументов командной строки
 parser = argparse.ArgumentParser(description='Prepare NER dataset from annotations')
-parser.add_argument('--texts', type=str, required=True, help='Path to texts CSV file')
-parser.add_argument('--annotations', type=str, required=True, help='Path to annotations CSV file')
-# parser.add_argument('--model_name', type=str, default='ai-forever/ruBert-base', 
-#                     help='HuggingFace model name (default: ai-forever/ruBert-base)')
+parser.add_argument('--texts', type=str, default="data/texts.csv", help='Path to texts CSV file')
+parser.add_argument('--annotations', type=str,default="data/annotations.csv", help='Path to annotations CSV file')
 parser.add_argument('--output_dir', type=str, default='data/ner_dataset',
                     help='Output directory for dataset (default: data/ner_dataset)')
 parser.add_argument('--train_ratio', type=float, default=0.8,
@@ -68,9 +66,9 @@ train_texts = texts_df[texts_df['unique_id'].isin(train_ids)]
 val_texts = texts_df[texts_df['unique_id'].isin(val_ids)]
 test_texts = texts_df[texts_df['unique_id'].isin(test_ids)]
 
-train_annotations = annotations_df[annotations_df['text_id'].isin(train_ids)]
-val_annotations = annotations_df[annotations_df['text_id'].isin(val_ids)]
-test_annotations = annotations_df[annotations_df['text_id'].isin(test_ids)]
+train_annotations = annotations_df[annotations_df['text_id'].isin(train_texts.id)]
+val_annotations = annotations_df[annotations_df['text_id'].isin(val_texts.id)]
+test_annotations = annotations_df[annotations_df['text_id'].isin(test_texts.id)]
 
 # Создание датасетов
 print("Creating datasets...")

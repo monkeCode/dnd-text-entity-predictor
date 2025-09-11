@@ -190,13 +190,11 @@ class NERModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
 
-        prev_labels_onehot = self._get_prev_labels_onehot(batch['labels'])
-
         outputs = self(
             input_ids=batch['input_ids'],
             attention_mask=batch['attention_mask'],
             labels=batch['labels'],
-            prev_labels_onehot=prev_labels_onehot
+            prev_labels_onehot=None
         )
         loss = outputs["loss"]
 
