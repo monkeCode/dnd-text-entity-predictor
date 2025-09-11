@@ -39,7 +39,7 @@ def decompose_tag(text, sub_page: bs4.BeautifulSoup | bs4.PageElement, start_idx
             t = el.text
             e = i + len(t)
             text += t + " "
-            href = el.get("href", "")
+            href = el.get("href", "").replace("/homebrew", "")
             if href.startswith("/spell"):
                 clas = "SPELL"
             elif href.startswith("/bestiary"):
@@ -166,7 +166,7 @@ for idx, row in tqdm(df.iterrows(), total=len(df)):
     status_code = row['code']
     
     # Пропускаем страницы с ошибками
-    if status_code != 200 or not isinstance(page_html, str):
+    if (status_code != "200" and status_code != 200) or not isinstance(page_html, str):
         continue
     
     # Парсим страницу

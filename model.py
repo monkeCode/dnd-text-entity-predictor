@@ -42,12 +42,12 @@ class NERModel(pl.LightningModule):
         
         self.classifier = nn.Sequential(
             nn.Linear(classifier_input_size, hidden_size),
-            nn.ReLU(),
+            nn.GELU(),
             nn.Dropout(dropout_rate),
-            nn.Linear(hidden_size, hidden_size // 2),
-            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.GELU(),
             nn.Dropout(dropout_rate),
-            nn.Linear(hidden_size // 2, num_labels)
+            nn.Linear(hidden_size, num_labels)
         )
         
         self.dropout = nn.Dropout(dropout_rate)

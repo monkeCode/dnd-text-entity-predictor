@@ -22,7 +22,7 @@ args = parser.parse_args()
 # Создание директории для выходного файла если нужно
 os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
-sources = ["https://dnd.su/bestiary/", "https://dnd.su/items/", "https://dnd.su/spells/"]
+sources = ["https://dnd.su/bestiary/", "https://dnd.su/items/", "https://dnd.su/spells/", "https://dnd.su/homebrew/items/", "https://dnd.su/homebrew/spells/", "https://dnd.su/homebrew/bestiary/"]
 refs = []
 
 for s in sources:
@@ -33,7 +33,7 @@ for s in sources:
         for el in soup.find_all("a") 
         if el.get("href") and any(
             el.get("href").startswith(path) 
-            for path in ["/bestiary", "/items", "/spells"]
+            for path in ["/bestiary", "/items", "/spells", "/homebrew/spells", "/homebrew/bestiary", "/homebrew/items"]
         )
     ])
 
