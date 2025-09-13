@@ -41,8 +41,8 @@ stages:
     deps:
     - path: create_datasets.py
       hash: md5
-      md5: 04ee138ba866674b6b70c7fd4a62bb02
-      size: 4667
+      md5: 5dba0c51749e52c652d1f1a77f1f8aaa
+      size: 4734
     - path: data/annotations.csv
       hash: md5
       md5: ef7dbfcca0072b2612b10f1fcce67351
@@ -97,16 +97,16 @@ stages:
       size: 52
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 5b0787ac467a013ed80d084d06c4f73b
-      size: 10162571
+      md5: 928c90d946fe6665deb8bd32520cf438
+      size: 10240203
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 6440bef675b918f2fc031f98a9f54621
-      size: 58891921
+      md5: 652e510d77d04ee734852539c088fcad
+      size: 100357137
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: e1de560f57be59f659b9e4bb5f4bc3fd
-      size: 10055749
+      md5: 920f9a32369d0ff61bf2f6a4192ca206
+      size: 10125573
     - path: train_model.py
       hash: md5
       md5: 6338fede7da3f55d5ac5998d201ce647
@@ -115,13 +115,13 @@ stages:
       params.yaml:
         base-model: cointegrated/rubert-tiny2
         train:
-          epoches: 50
+          epoches: 70
           lr: 1e-05
           batch-size: 64
           num-workers: 5
           freeze: false
           dropout_rate: 0.1
-          use_prev_label: true
+          use_prev_label: false
           weights:
           - 1
           - 2
@@ -133,8 +133,8 @@ stages:
     outs:
     - path: models
       hash: md5
-      md5: cb5ec43815174180833e93a310a63647.dir
-      size: 117034609
+      md5: c8bea63f5c162038aaff66bbbacb9a68.dir
+      size: 116997803
       nfiles: 1
   prepare_syntetic_data:
     cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv

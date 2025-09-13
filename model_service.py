@@ -5,6 +5,9 @@ from typing import List, Dict
 import torch
 from model import NERModel
 from transformers import AutoTokenizer
+import yaml
+import sys
+import re
 
 app = FastAPI()
 app.add_middleware(
@@ -15,9 +18,18 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-MODEL_PATH = 'models/model_rubert-tiny2_50_eps.pth'
+CONFIG_PATH = "./params.yaml"
+with open(CONFIG_PATH) as f:
+    config = yaml.safe_load(f)
+
+
+
+MODEL_PATH = sys.argv[1]
 BASE_MODEL_NAME =  "cointegrated/rubert-tiny2"
 NUM_LABELS = 7
+LOWER = config["lower_texts"]
+
+SPLIT_BY_SENTENSES = True
 
 with open('data/ner_dataset/labels.txt', 'r') as f:
         label_list = [line.strip() for line in f]
@@ -26,7 +38,7 @@ id2label = {i: label for i, label in enumerate(label_list)}
 label2id = {label: i for i, label in enumerate(label_list)}
 
 
-model:NERModel = NERModel(BASE_MODEL_NAME, NUM_LABELS, id2label, label2id, 0, use_prev_label=True)
+model:NERModel = NERModel(BASE_MODEL_NAME, NUM_LABELS, id2label, label2id, 0, use_prev_label=config["train"]["use_prev_label"], weights=config["train"]["weights"])
 model.load_state_dict(state_dict=torch.load(MODEL_PATH))
 model.eval()
 
@@ -111,8 +123,22 @@ def predict_batch(item: Item):
     results = []
     for request in item.batch:
         text = request["text"]
+        if LOWER:
+            text = text.lower()
+        if SPLIT_BY_SENTENSES:
+            sentens = re.split(r'(?<=[\n.])(?=\S)', text)
+            tokens_with_preds = []
+            offset = 0
+            for s in sentens:
+                if len(s) == 0:
+                    continue
+                pred = predict(s)
+                tokens_with_preds.extend([(p[0], p[1], (p[2][0] + offset, p[2][1] + offset)) for p in pred])
+                offset += len(s)
+        else:
+            tokens_with_preds = predict(text)
+
         id = request["id"]
-        tokens_with_preds = predict(text)
 
         predictions = []
         current_entity = None

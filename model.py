@@ -57,7 +57,7 @@ class NERModel(pl.LightningModule):
         
         self.start_label_id = num_labels  # Специальный ID для начала последовательности
 
-        self.loss_fct = nn.CrossEntropyLoss(weight=torch.tensor(weights), ignore_index=-100)
+        self.loss_fct = nn.CrossEntropyLoss(weight=torch.tensor(weights) if weights is not None else None, ignore_index=-100)
 
     def _init_metrics(self, num_labels):
         # Макро-метрики

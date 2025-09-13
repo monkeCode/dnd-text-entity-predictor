@@ -51,6 +51,7 @@ max_length = params["max-tokens"]
 
 lower_data = params["lower_texts"]
 use_syntetic = params["use_syntetic_data"]
+concat_texts = params["concat_texts"]
 
 # Разделение данных на train/val/test
 if lower_data:
@@ -79,7 +80,8 @@ if use_syntetic:
     syntetic_annotations = pd.read_csv("data/synt_annotations.csv")
     if lower_data:
         syntetic_texts["text"] = syntetic_texts["text"].apply(str.lower)
-
+    if concat_texts:
+        
     train_texts = pd.concat([train_texts, syntetic_texts])
     train_annotations= pd.concat([train_annotations, syntetic_annotations])
 
