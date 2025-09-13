@@ -46,6 +46,16 @@ stages:
     - base-model
     outs:
     - models
+  prepare_syntetic_data:
+    cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv
+      --output_texts data/synt_texts.csv --output_annotations data/synt_annotations.csv
+    deps:
+    - data/lmstudio_responses.csv
+    - data/ya_generated.csv
+    - prepare_syntetic_data.py
+    outs:
+    - data/synt_annotations.csv
+    - data/synt_texts.csv
 params:
 - dvclive/params.yaml
 metrics:

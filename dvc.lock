@@ -126,3 +126,28 @@ stages:
       md5: cb5ec43815174180833e93a310a63647.dir
       size: 117034609
       nfiles: 1
+  prepare_syntetic_data:
+    cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv
+      --output_texts data/synt_texts.csv --output_annotations data/synt_annotations.csv
+    deps:
+    - path: data/lmstudio_responses.csv
+      hash: md5
+      md5: 97d028b68d0fe64555861785e98cfb9f
+      size: 1971794
+    - path: data/ya_generated.csv
+      hash: md5
+      md5: 40353700b57bd79959956bc5573f7d14
+      size: 49928484
+    - path: prepare_syntetic_data.py
+      hash: md5
+      md5: a7576a8ce152887c7798c20be9d56536
+      size: 6706
+    outs:
+    - path: data/synt_annotations.csv
+      hash: md5
+      md5: b82787d35cb7f31a4abf811b6a3c3eed
+      size: 2143734
+    - path: data/synt_texts.csv
+      hash: md5
+      md5: d271b2f5672faa5960e3bdbf8d78f979
+      size: 17300259

@@ -81,32 +81,31 @@ def process_csv_files(input_files: List[str], output_texts_csv: str, output_anno
             # Обрабатываем каждую строку
             for _, row in df.iterrows():
                 # Получаем предложения из строки
-                if 'sentenses' in row:
-                    sentences = row['sentenses'].split('|')
+                if 'sentense' in row:
+                    sentence = row['sentense']
                     
-                    for sentence in sentences:
-                        # Парсим аннотации
-                        cleaned_text, annotations = parse_annotated_text(sentence)
-                        
-                        # Добавляем текст в коллекцию
-                        text_data = {
-                            'id': text_id_counter,
-                            'text': cleaned_text,
-                            'source': file_path
+                    # Парсим аннотации
+                    cleaned_text, annotations = parse_annotated_text(sentence)
+                    
+                    # Добавляем текст в коллекцию
+                    text_data = {
+                        'id': str(text_id_counter) + "_s",
+                        'text': cleaned_text,
+                        'source': file_path
+                    }
+                    all_texts_data.append(text_data)
+                    
+                    # Добавляем аннотации
+                    for start_pos, end_pos, annotation_class in annotations:
+                        annotation_data = {
+                            'text_id': str(text_id_counter) + "_s",
+                            'start': start_pos,
+                            'end': end_pos,
+                            'class': annotation_class,
                         }
-                        all_texts_data.append(text_data)
-                        
-                        # Добавляем аннотации
-                        for start_pos, end_pos, annotation_class in annotations:
-                            annotation_data = {
-                                'text_id': text_id_counter,
-                                'start': start_pos,
-                                'end': end_pos,
-                                'class': annotation_class,
-                            }
-                            all_annotations_data.append(annotation_data)
-                        
-                        text_id_counter += 1
+                        all_annotations_data.append(annotation_data)
+                    
+                    text_id_counter += 1
                         
         except Exception as e:
             print(f"Ошибка при обработке файла {file_path}: {e}")
