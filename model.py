@@ -9,7 +9,7 @@ from torch.optim import AdamW
 
 class NERModel(pl.LightningModule):
     def __init__(self, model_name, num_labels, id2label, label2id, learning_rate=2e-5, freeze=True, 
-                 hidden_size=256, dropout_rate=0.3, use_prev_label=True):
+                 hidden_size=256, dropout_rate=0.3, use_prev_label=True, weights=None):
         super().__init__()
         self.save_hyperparameters()
         
@@ -57,7 +57,7 @@ class NERModel(pl.LightningModule):
         
         self.start_label_id = num_labels  # Специальный ID для начала последовательности
 
-        self.loss_fct = nn.CrossEntropyLoss(ignore_index=-100)
+        self.loss_fct = nn.CrossEntropyLoss(weight=torch.tensor(weights), ignore_index=-100)
 
     def _init_metrics(self, num_labels):
         # Макро-метрики

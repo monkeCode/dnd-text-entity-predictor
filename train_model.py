@@ -5,6 +5,7 @@ from ner_dataset import NERDataset
 from dvclive.lightning import DVCLiveLogger
 import dvc.api
 from model import NERModel
+import numpy as np
 
 params = dvc.api.params_show()
 
@@ -74,6 +75,9 @@ if __name__ == "__main__":
 
     data_module = NERDataModule(train_dataset, val_dataset, test_dataset, batch_size=params["train"]["batch-size"])
 
+    weigts = np.array(params["train"]["weights"])
+    weigts /= weigts.sum()
+
     model = NERModel(
         model_name=params["base-model"],
         num_labels=len(label_list),
@@ -83,6 +87,7 @@ if __name__ == "__main__":
         freeze=params["train"]["freeze"],
         dropout_rate= params["train"]["dropout_rate"],
         use_prev_label= params["train"]["use_prev_label"],
+        weights= weigts.tolist()
     )
 
     trainer = pl.Trainer(

@@ -99,8 +99,8 @@ stages:
       size: 9284101
     - path: train_model.py
       hash: md5
-      md5: 7d7ee9f217d27bb42bb26355bd556103
-      size: 3551
+      md5: 6338fede7da3f55d5ac5998d201ce647
+      size: 3681
     params:
       params.yaml:
         base-model: cointegrated/rubert-tiny2
@@ -112,9 +112,17 @@ stages:
           freeze: false
           dropout_rate: 0.1
           use_prev_label: true
+          weights:
+          - 1
+          - 2
+          - 2
+          - 3
+          - 2.5
+          - 3
+          - 2.5
     outs:
     - path: models
       hash: md5
-      md5: a69dfe3adf7df4f12fb5efe49ac31d3a.dir
-      size: 117034274
+      md5: cb5ec43815174180833e93a310a63647.dir
+      size: 117034609
       nfiles: 1

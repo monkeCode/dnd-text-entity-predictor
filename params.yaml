@@ -10,3 +10,4 @@ train:
   freeze: false
   dropout_rate: 0.1
   use_prev_label: true
+  weights: [1, 2, 2, 3, 2.5, 3, 2.5]

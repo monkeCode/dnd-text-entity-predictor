@@ -21,3 +21,11 @@ freeze: false
 hidden_size: 256
 dropout_rate: 0.1
 use_prev_label: true
+weights:
+- 0.0625
+- 0.125
+- 0.125
+- 0.1875
+- 0.15625
+- 0.1875
+- 0.15625
