@@ -21,11 +21,15 @@ stages:
     - data/annotations.csv
     - data/texts.csv
     - ner_dataset.py
+    - data/synt_annotations.csv
+    - data/synt_texts.csv
     outs:
     - data/ner_dataset
     params:
     - base-model
     - max-tokens
+    - lower_texts
+    - use_syntetic_data
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
       3

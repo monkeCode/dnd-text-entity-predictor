@@ -41,12 +41,20 @@ stages:
     deps:
     - path: create_datasets.py
       hash: md5
-      md5: b9ec96927509fd8ac6a450b645d23629
-      size: 4147
+      md5: 04ee138ba866674b6b70c7fd4a62bb02
+      size: 4667
     - path: data/annotations.csv
       hash: md5
       md5: ef7dbfcca0072b2612b10f1fcce67351
       size: 1483375
+    - path: data/synt_annotations.csv
+      hash: md5
+      md5: d2e115c9061cc9d04836c20ae49ac485
+      size: 2143655
+    - path: data/synt_texts.csv
+      hash: md5
+      md5: d271b2f5672faa5960e3bdbf8d78f979
+      size: 17300259
     - path: data/texts.csv
       hash: md5
       md5: 19b3116e84fca9dc22a959d3fdbdef9e
@@ -58,12 +66,14 @@ stages:
     params:
       params.yaml:
         base-model: cointegrated/rubert-tiny2
+        lower_texts: true
         max-tokens: 200
+        use_syntetic_data: true
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: 2706cd6061c8f5fb263093848fb896fa.dir
-      size: 79814038
+      md5: 20499558f3ea572358613744a8b74f93.dir
+      size: 121426710
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
@@ -140,13 +150,13 @@ stages:
       size: 49928484
     - path: prepare_syntetic_data.py
       hash: md5
-      md5: a7576a8ce152887c7798c20be9d56536
-      size: 6706
+      md5: d3ef62124b98fcd1cefa00298c1d2e14
+      size: 6849
     outs:
     - path: data/synt_annotations.csv
       hash: md5
-      md5: b82787d35cb7f31a4abf811b6a3c3eed
-      size: 2143734
+      md5: d2e115c9061cc9d04836c20ae49ac485
+      size: 2143655
     - path: data/synt_texts.csv
       hash: md5
       md5: d271b2f5672faa5960e3bdbf8d78f979

@@ -49,8 +49,12 @@ model_name = params["base-model"]
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 max_length = params["max-tokens"]
 
+lower_data = params["lower_texts"]
+use_syntetic = params["use_syntetic_data"]
 
 # Разделение данных на train/val/test
+if lower_data:
+    texts_df["text"] = texts_df["text"].apply(str.lower)
 text_ids = texts_df['unique_id'].unique()
 np.random.seed(args.seed)
 np.random.shuffle(text_ids)
@@ -69,6 +73,15 @@ test_texts = texts_df[texts_df['unique_id'].isin(test_ids)]
 train_annotations = annotations_df[annotations_df['text_id'].isin(train_texts.id)]
 val_annotations = annotations_df[annotations_df['text_id'].isin(val_texts.id)]
 test_annotations = annotations_df[annotations_df['text_id'].isin(test_texts.id)]
+
+if use_syntetic:
+    syntetic_texts = pd.read_csv("data/synt_texts.csv")
+    syntetic_annotations = pd.read_csv("data/synt_annotations.csv")
+    if lower_data:
+        syntetic_texts["text"] = syntetic_texts["text"].apply(str.lower)
+
+    train_texts = pd.concat([train_texts, syntetic_texts])
+    train_annotations= pd.concat([train_annotations, syntetic_annotations])
 
 # Создание датасетов
 print("Creating datasets...")

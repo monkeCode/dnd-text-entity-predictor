@@ -1,6 +1,8 @@
 base-model: cointegrated/rubert-tiny2
 
 max-tokens: 200
+lower_texts: true
+use_syntetic_data: true
 
 train:
   epoches: 50

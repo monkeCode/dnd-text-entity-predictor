@@ -97,6 +97,9 @@ def process_csv_files(input_files: List[str], output_texts_csv: str, output_anno
                     
                     # Добавляем аннотации
                     for start_pos, end_pos, annotation_class in annotations:
+                        if annotation_class not in ["MONSTER", "SPELL", "ITEM"]:
+                            continue
+                        
                         annotation_data = {
                             'text_id': str(text_id_counter) + "_s",
                             'start': start_pos,
