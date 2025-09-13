@@ -22,10 +22,15 @@ args = parser.parse_args()
 # Создание директории для выходного файла если нужно
 os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
-sources = ["https://dnd.su/bestiary/", "https://dnd.su/items/", "https://dnd.su/spells/", "https://dnd.su/homebrew/items/", "https://dnd.su/homebrew/spells/", "https://dnd.su/homebrew/bestiary/"]
+sources = ["https://dnd.su/bestiary/", 
+           "https://dnd.su/items/", 
+           *[f"https://dnd.su/spells/?search=&school=1%7C2%7C3%7C4%7C5%7C6%7C7%7C8&page={i}" for i in range(1,21)], 
+           *[f"https://dnd.su/homebrew/spells/?search=&school=1%7C2%7C3%7C4%7C5%7C6%7C7%7C8&page={i}" for i in range(1,75)], 
+           "https://dnd.su/homebrew/items/", 
+           "https://dnd.su/homebrew/bestiary/"]
 refs = []
 
-for s in sources:
+for s in tqdm(sources):
     page = requests.get(s).text
     soup = bs4.BeautifulSoup(page, 'html.parser')
     refs.extend([

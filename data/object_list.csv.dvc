@@ -1,0 +1,5 @@
+outs:
+- md5: 80f9a854206ca3e6cdefe96e2e2be93e
+  size: 725440
+  hash: md5
+  path: object_list.csv

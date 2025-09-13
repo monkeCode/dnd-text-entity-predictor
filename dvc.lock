@@ -5,13 +5,13 @@ stages:
     deps:
     - path: download_site.py
       hash: md5
-      md5: 58e89d55e37d26caddabb80ceed988a2
-      size: 3675
+      md5: 7c167d78c162a4f07363302c0f3f2f9a
+      size: 3899
     outs:
     - path: data/pages.csv
       hash: md5
-      md5: dc499e86e25721e51ad354e18845b9c7
-      size: 422942892
+      md5: c615256c67d7606d0ed86d81d3d46bd9
+      size: 636746478
   make_annotations:
     cmd: python annotate_texts.py
     deps:
@@ -21,8 +21,8 @@ stages:
       size: 7838
     - path: data/pages.csv
       hash: md5
-      md5: dc499e86e25721e51ad354e18845b9c7
-      size: 422942892
+      md5: c615256c67d7606d0ed86d81d3d46bd9
+      size: 636746478
     - path: data/pathfinder_json.csv
       hash: md5
       md5: 7ce4a4635e29a387f4e5d5dbacee111e
@@ -30,12 +30,12 @@ stages:
     outs:
     - path: data/annotations.csv
       hash: md5
-      md5: e2bc2d011481e26fb369de37543ca6e1
-      size: 1434837
+      md5: ef7dbfcca0072b2612b10f1fcce67351
+      size: 1483375
     - path: data/texts.csv
       hash: md5
-      md5: a00b2aa8e28576c5a879448c4ec34012
-      size: 36202236
+      md5: 19b3116e84fca9dc22a959d3fdbdef9e
+      size: 40829183
   make_datasets:
     cmd: python create_datasets.py --texts data/texts.csv --annotations data/annotations.csv
     deps:
@@ -45,12 +45,12 @@ stages:
       size: 4147
     - path: data/annotations.csv
       hash: md5
-      md5: e2bc2d011481e26fb369de37543ca6e1
-      size: 1434837
+      md5: ef7dbfcca0072b2612b10f1fcce67351
+      size: 1483375
     - path: data/texts.csv
       hash: md5
-      md5: a00b2aa8e28576c5a879448c4ec34012
-      size: 36202236
+      md5: 19b3116e84fca9dc22a959d3fdbdef9e
+      size: 40829183
     - path: ner_dataset.py
       hash: md5
       md5: ff6c0e629f415d3efb145b76b9b76348
@@ -62,8 +62,8 @@ stages:
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: 79b7dd5cda63b0ff8fbc6699c3afcf2b.dir
-      size: 71790032
+      md5: 2706cd6061c8f5fb263093848fb896fa.dir
+      size: 79814038
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
@@ -87,16 +87,16 @@ stages:
       size: 52
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 1eba2308e4fdb01f85cb4b0272414734
-      size: 9378827
+      md5: 5b0787ac467a013ed80d084d06c4f73b
+      size: 10162571
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 50a7bde7341c9647363eb0d402084fc3
-      size: 52507857
+      md5: 6440bef675b918f2fc031f98a9f54621
+      size: 58891921
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: a6a2743ba977c19f26cf85f040e1fb4c
-      size: 9284101
+      md5: e1de560f57be59f659b9e4bb5f4bc3fd
+      size: 10055749
     - path: train_model.py
       hash: md5
       md5: 6338fede7da3f55d5ac5998d201ce647
