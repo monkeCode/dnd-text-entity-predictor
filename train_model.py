@@ -6,6 +6,8 @@ from dvclive.lightning import DVCLiveLogger
 import dvc.api
 from model import NERModel
 import numpy as np
+from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 params = dvc.api.params_show()
 
@@ -90,18 +92,45 @@ if __name__ == "__main__":
         weights= weigts.tolist()
     )
 
+
+    # Callbacks
+    early_stop_callback = EarlyStopping(
+        monitor="val_f1_macro",
+        min_delta=0.001,
+        patience=params["train"]["early_stopping_patience"],
+        verbose=True,
+        mode="max"
+    )
+    
+    lr_monitor = LearningRateMonitor(logging_interval='epoch')
+    
+    checkpoint_callback = ModelCheckpoint(
+        monitor="val_f1_macro",
+        dirpath="checkpoints",
+        filename="best-checkpoint",
+        save_top_k=1,
+        mode="max"
+    )
+
     trainer = pl.Trainer(
         max_epochs=params["train"]["epoches"],
         accelerator="gpu",
         logger=DVCLiveLogger(log_model=True),
         num_sanity_val_steps=10,
+        callbacks=[early_stop_callback, lr_monitor, checkpoint_callback],
+        gradient_clip_val=0.5
     )
 
     trainer.fit(model, data_module)
+
+    best_model_path = checkpoint_callback.best_model_path
+    if best_model_path:
+        print(f"Загружаем лучшую модель: {best_model_path}")
+        model = NERModel.load_from_checkpoint(best_model_path)
 
     trainer.test(model, data_module)
 
     import os
     os.makedirs("models", exist_ok=True)
     
-    torch.save(model.state_dict(), f"models/model_{params["base-model"].split("/")[-1]}_{params["train"]["epoches"]}_eps.pth")
+    torch.save(model.state_dict(), f"models/model.pth")

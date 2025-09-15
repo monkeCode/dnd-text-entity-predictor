@@ -265,7 +265,22 @@ class NERModel(pl.LightningModule):
         self.test_f1_per_label.reset()
 
     def configure_optimizers(self):
-        return AdamW(self.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, 
+            mode='min',
+            factor=0.5,
+            patience=2,
+        )
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "val_loss",
+                "interval": "epoch",
+                "frequency": 1
+            }
+        }
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
 

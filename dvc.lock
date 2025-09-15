@@ -66,6 +66,7 @@ stages:
     params:
       params.yaml:
         base-model: cointegrated/rubert-tiny2
+        concat_texts: true
         lower_texts: true
         max-tokens: 200
         use_syntetic_data: true
@@ -109,8 +110,8 @@ stages:
       size: 10125573
     - path: train_model.py
       hash: md5
-      md5: 6338fede7da3f55d5ac5998d201ce647
-      size: 3681
+      md5: 56d4dedc809506a053d91c378ee9b585
+      size: 3610
     params:
       params.yaml:
         base-model: cointegrated/rubert-tiny2
@@ -133,7 +134,7 @@ stages:
     outs:
     - path: models
       hash: md5
-      md5: c8bea63f5c162038aaff66bbbacb9a68.dir
+      md5: 2e873bebfb07347b8e84c0e72505e7b5.dir
       size: 116997803
       nfiles: 1
   prepare_syntetic_data:

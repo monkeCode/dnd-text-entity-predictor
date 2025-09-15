@@ -67,7 +67,3 @@ metrics:
 plots:
 - dvclive/plots/metrics:
     x: step
-artifacts:
-  best:
-    path: dvclive/artifacts/epoch=26-step=46656.ckpt
-    type: model
