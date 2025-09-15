@@ -25,11 +25,11 @@ with open(CONFIG_PATH) as f:
 
 
 MODEL_PATH = sys.argv[1]
-BASE_MODEL_NAME =  "cointegrated/rubert-tiny2"
+BASE_MODEL_NAME =  config["base-model"]
 NUM_LABELS = 7
 LOWER = config["lower_texts"]
 
-SPLIT_BY_SENTENSES = True
+SPLIT_BY_SENTENSES = False
 
 with open('data/ner_dataset/labels.txt', 'r') as f:
         label_list = [line.strip() for line in f]
@@ -71,7 +71,7 @@ def predict(text, max_length=200, overlap=0):
             chunk_text,
             return_tensors="pt",
             truncation=True,
-            padding=True,
+            padding=False,
             return_offsets_mapping=True,
             max_length=max_length
         )
@@ -98,7 +98,8 @@ def predict(text, max_length=200, overlap=0):
             count[original_idx] += 1
 
     # Усредняем предсказания
-    averaged_logits = all_logits / count.unsqueeze(1)
+    #averaged_logits = all_logits / count.unsqueeze(1)
+    averaged_logits = all_logits
     preds = torch.argmax(averaged_logits, dim=-1).tolist()
     
     # Формируем результат
