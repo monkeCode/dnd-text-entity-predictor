@@ -64,7 +64,8 @@ class NERDataModule(pl.LightningDataModule):
         }
 
 if __name__ == "__main__":
-
+    torch.set_float32_matmul_precision('high')
+    
     train_dataset:NERDataset = torch.load('data/ner_dataset/train_dataset.pt', weights_only=False)
     val_dataset:NERDataset = torch.load('data/ner_dataset/val_dataset.pt', weights_only=False)
     test_dataset:NERDataset = torch.load('data/ner_dataset/test_dataset.pt', weights_only=False)
@@ -77,7 +78,7 @@ if __name__ == "__main__":
 
     data_module = NERDataModule(train_dataset, val_dataset, test_dataset, batch_size=params["train"]["batch-size"])
 
-    weigts = np.array(params["train"]["weights"])
+    weigts = np.array(params["train"]["weights"], dtype=np.float32)
     weigts /= weigts.sum()
 
     model = NERModel(

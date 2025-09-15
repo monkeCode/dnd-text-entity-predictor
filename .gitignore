@@ -3,3 +3,4 @@
 /models
 /lightning_logs
 /dvc_plots
+/checkpoints
