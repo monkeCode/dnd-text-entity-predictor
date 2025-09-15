@@ -67,3 +67,7 @@ metrics:
 plots:
 - dvclive/plots/metrics:
     x: step
+artifacts:
+  best:
+    path: dvclive/artifacts/best-checkpoint.ckpt
+    type: model
