@@ -41,20 +41,20 @@ stages:
     deps:
     - path: create_datasets.py
       hash: md5
-      md5: 678dbee8a1409d7a77f0ac0aa56ec301
-      size: 4963
+      md5: 25e9acaafec26a23ed6e521f73ce8d6c
+      size: 4673
     - path: data/annotations.csv
       hash: md5
       md5: ef7dbfcca0072b2612b10f1fcce67351
       size: 1483375
     - path: data/synt_annotations.csv
       hash: md5
-      md5: 3c487da7ed2970776886eb9ee31d7d4a
-      size: 2120623
+      md5: d2e115c9061cc9d04836c20ae49ac485
+      size: 2143655
     - path: data/synt_texts.csv
       hash: md5
-      md5: b9075d2cd6023e7f0e63127d94183415
-      size: 16750144
+      md5: d271b2f5672faa5960e3bdbf8d78f979
+      size: 17300259
     - path: data/texts.csv
       hash: md5
       md5: 19b3116e84fca9dc22a959d3fdbdef9e
@@ -66,15 +66,14 @@ stages:
     params:
       params.yaml:
         base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
-        binary-mode: true
         lower_texts: true
         max-tokens: 200
         use_syntetic_data: true
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: aaed35f638aa8ebf77cfe4a051da1d52.dir
-      size: 128926710
+      md5: f3f04762953c5cc8efcea8d6bbf875e6.dir
+      size: 130190742
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
@@ -94,19 +93,19 @@ stages:
     deps:
     - path: data/ner_dataset/labels.txt
       hash: md5
-      md5: a2254097aba1c5e55040163327689913
-      size: 20
+      md5: 3569504ffcfd1ff47ea6011f904f0e8c
+      size: 52
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 4c0e11095d5a381c2b3807a8b6195fa8
+      md5: 7685864517c89bb1acc892d639d9bc48
       size: 10911819
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 22aa672100dc87329bdc68beb65ec059
-      size: 106524497
+      md5: 7460c0d44e4d133ee6742e8526251de7
+      size: 107788497
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: c436ff3983408d4d5c9d68cfc6e6f31f
+      md5: 5ebd2543d938906b5640ad804bab030c
       size: 10786629
     - path: train_model.py
       hash: md5
@@ -128,11 +127,15 @@ stages:
           - 1
           - 1
           - 1
+          - 1
+          - 1
+          - 1
+          - 1
     outs:
     - path: models
       hash: md5
-      md5: fc01463913e3fc5f2c9b964ec5348329.dir
-      size: 710172739
+      md5: b71fef2b12e346ed403296127215f1d5.dir
+      size: 710176835
       nfiles: 1
   prepare_syntetic_data:
     cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv
@@ -140,22 +143,22 @@ stages:
     deps:
     - path: data/lmstudio_responses.csv
       hash: md5
-      md5: 19e7ffbef57f7fca210052bc8c5fb9a0
-      size: 1971795
+      md5: 97d028b68d0fe64555861785e98cfb9f
+      size: 1971794
     - path: data/ya_generated.csv
       hash: md5
-      md5: 4a8fd0cc635e8012d8d180bf9ab3fe18
-      size: 49928485
+      md5: 40353700b57bd79959956bc5573f7d14
+      size: 49928484
     - path: prepare_syntetic_data.py
       hash: md5
-      md5: 8327847565010be01e1e38dd355b974b
-      size: 7073
+      md5: d3ef62124b98fcd1cefa00298c1d2e14
+      size: 6849
     outs:
     - path: data/synt_annotations.csv
       hash: md5
-      md5: 3c487da7ed2970776886eb9ee31d7d4a
-      size: 2120623
+      md5: d2e115c9061cc9d04836c20ae49ac485
+      size: 2143655
     - path: data/synt_texts.csv
       hash: md5
-      md5: b9075d2cd6023e7f0e63127d94183415
-      size: 16750144
+      md5: d271b2f5672faa5960e3bdbf8d78f979
+      size: 17300259

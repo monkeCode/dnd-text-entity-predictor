@@ -30,7 +30,6 @@ stages:
     - max-tokens
     - lower_texts
     - use_syntetic_data
-    - binary-mode
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
       3
