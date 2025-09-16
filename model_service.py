@@ -8,6 +8,8 @@ from transformers import AutoTokenizer
 import yaml
 import sys
 import re
+import numpy as np
+from collections import defaultdict
 
 app = FastAPI()
 app.add_middleware(
@@ -28,7 +30,7 @@ MODEL_PATH = sys.argv[1]
 BASE_MODEL_NAME =  config["base-model"]
 LOWER = config["lower_texts"]
 
-SPLIT_BY_SENTENSES = True
+SPLIT_BY_SENTENSES = False
 
 with open('data/ner_dataset/labels.txt', 'r') as f:
         label_list = [line.strip() for line in f]
@@ -47,11 +49,12 @@ tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_NAME)
 class Item(BaseModel):
     batch: List[Dict[str, str]]
 
+
 @torch.no_grad()
-def predict(text, max_length=200, overlap=0.3):
+def predict(text, max_length=200, overlap=0.2):
     """
-    Предсказывает NER-метки для текста с использованием скользящего окна
-    и агрегацией результатов с перекрытием.
+    Предсказывает NER-метки для текста с использованием скользящего окна.
+    Сначала токенизирует весь текст, затем обрабатывает части с перекрытием.
     
     Args:
         text (str): Входной текст для анализа
@@ -64,70 +67,58 @@ def predict(text, max_length=200, overlap=0.3):
     # Проверяем, что перекрытие в допустимом диапазоне
     overlap = max(0.0, min(0.9, overlap))
     
-    # Инициализируем массивы для агрегации предсказаний
-    all_logits = []
-    all_offsets = []
+    full_encoding = tokenizer(
+        text,
+        return_offsets_mapping=True,
+        truncation=False,
+        add_special_tokens=False
+    )
     
-    # Определяем размер окна и шаг в символах
-    window_size = max_length * 4  # Примерный размер окна в символах
+    all_tokens = full_encoding["input_ids"]
+    all_offsets = full_encoding["offset_mapping"]
+    
+    num_tokens = len(all_tokens)
+    window_size = max_length - 2 
     stride = int(window_size * (1 - overlap))
     
-    # Обрабатываем текст окнами
-    for start_idx in range(0, len(text), stride):
-        end_idx = min(start_idx + window_size, len(text))
-        chunk_text = text[start_idx:end_idx]
+    token_logits = {i:[] for i in range(num_tokens)}
+    
+    for start_idx in range(0, num_tokens, stride):
+        end_idx = min(start_idx + window_size, num_tokens)
         
-        # Токенизируем чанк с учетом специальных токенов
-        inputs = tokenizer(
-            chunk_text,
-            return_tensors="pt",
+        inputs = tokenizer.prepare_for_model(all_tokens[start_idx:end_idx], return_tensors="pt",
             truncation=True,
             padding='max_length',
             max_length=max_length,
-            return_offsets_mapping=True
-        )
+            return_offsets_mapping=True)
         
-        # Получаем предсказания для чанка
         outputs = model(
-            input_ids=inputs["input_ids"].to(model.device),
-            attention_mask=inputs["attention_mask"].to(model.device)
+            input_ids=inputs["input_ids"].to(model.device).unsqueeze(0),
+            attention_mask=inputs["attention_mask"].to(model.device).unsqueeze(0)
         )
         
-        # Корректируем смещения для глобальных позиций
-        chunk_offsets = inputs["offset_mapping"].squeeze(0).tolist()
-        adjusted_offsets = []
+        chunk_logits = outputs["logits"].squeeze(0)
         
-        for start, end in chunk_offsets:
-            if start == 0 and end == 0:  # Специальные токены
-                adjusted_offsets.append((0, 0))
-            else:
-                adjusted_offsets.append((start + start_idx, end + start_idx))
-        
-        # Сохраняем логиты и смещения
-        all_logits.append(outputs["logits"].squeeze(0))
-        all_offsets.extend(adjusted_offsets)
+        chunk_logits = [chunk_logits[i] for i in range(len(chunk_logits)) if inputs["input_ids"][i].item() not in tokenizer.all_special_ids ]
+
+        for i,j in enumerate(range(start_idx, end_idx)):
+            token_logits[j].append(chunk_logits[i])
     
-    # Объединяем результаты
-    if not all_logits:
-        return []
-    
-    combined_logits = torch.cat(all_logits, dim=0)
-    preds = torch.argmax(combined_logits, dim=-1).tolist()
-    
-    # Формируем результат, исключая специальные токены
     result = []
-    for i, (start, end) in enumerate(all_offsets):
-        # Пропускаем специальные токены и паддинг
-        if start == 0 and end == 0:
+    for token_idx in range(num_tokens):
+        if token_idx not in token_logits:
+            print("ERROR - TOKEN NOT IN DICT")
             continue
             
-        # Получаем текст токена
-        token_text = text[start:end]
+        avg_logits = np.mean(token_logits[token_idx], axis=0)
+        pred = np.argmax(avg_logits)
+        
+        token_text = text[all_offsets[token_idx][0]:all_offsets[token_idx][1]]
         
         result.append((
             token_text,
-            preds[i],
-            (start, end)
+            int(pred),
+            all_offsets[token_idx]
         ))
     
     return result
@@ -200,7 +191,9 @@ def predict_batch(item: Item):
             
         results.append({"id": id, "predictions": predictions})
 
+    
 
+    print(results)
     return {"results": results}
 
 if __name__ == '__main__':

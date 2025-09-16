@@ -151,14 +151,14 @@ stages:
       size: 49928484
     - path: prepare_syntetic_data.py
       hash: md5
-      md5: d3ef62124b98fcd1cefa00298c1d2e14
-      size: 6849
+      md5: 8327847565010be01e1e38dd355b974b
+      size: 7073
     outs:
     - path: data/synt_annotations.csv
       hash: md5
-      md5: d2e115c9061cc9d04836c20ae49ac485
-      size: 2143655
+      md5: 22d91852d8c686505bbbac7ff4123d8f
+      size: 2120538
     - path: data/synt_texts.csv
       hash: md5
-      md5: d271b2f5672faa5960e3bdbf8d78f979
-      size: 17300259
+      md5: b1423368ee2931cf7a7197f77a4caba2
+      size: 16749264
