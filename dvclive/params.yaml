@@ -1,4 +1,4 @@
-model_name: DeepPavlov/bert-base-bg-cs-pl-ru-cased
+model_name: cointegrated/rubert-tiny2
 num_labels: 7
 id2label:
   0: O
@@ -20,7 +20,7 @@ learning_rate: 1e-05
 freeze: true
 hidden_size: 256
 dropout_rate: 0.1
-use_prev_label: false
+use_prev_label: true
 weights:
 - 0.1428571492433548
 - 0.1428571492433548

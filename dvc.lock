@@ -65,15 +65,15 @@ stages:
       size: 3807
     params:
       params.yaml:
-        base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
+        base-model: cointegrated/rubert-tiny2
         lower_texts: true
         max-tokens: 200
         use_syntetic_data: true
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: f3f04762953c5cc8efcea8d6bbf875e6.dir
-      size: 130190742
+      md5: 20499558f3ea572358613744a8b74f93.dir
+      size: 121426710
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
@@ -97,23 +97,23 @@ stages:
       size: 52
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 7685864517c89bb1acc892d639d9bc48
-      size: 10911819
+      md5: 928c90d946fe6665deb8bd32520cf438
+      size: 10240203
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 7460c0d44e4d133ee6742e8526251de7
-      size: 107788497
+      md5: 652e510d77d04ee734852539c088fcad
+      size: 100357137
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: 5ebd2543d938906b5640ad804bab030c
-      size: 10786629
+      md5: 920f9a32369d0ff61bf2f6a4192ca206
+      size: 10125573
     - path: train_model.py
       hash: md5
       md5: 00bebbfa7d2a741f82a09d4d2db0b405
       size: 4628
     params:
       params.yaml:
-        base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
+        base-model: cointegrated/rubert-tiny2
         train:
           epoches: 70
           lr: 1e-05
@@ -122,7 +122,7 @@ stages:
           num-workers: 5
           freeze: true
           dropout_rate: 0.1
-          use_prev_label: false
+          use_prev_label: true
           weights:
           - 1
           - 1
@@ -134,8 +134,8 @@ stages:
     outs:
     - path: models
       hash: md5
-      md5: b71fef2b12e346ed403296127215f1d5.dir
-      size: 710176835
+      md5: dd484498463d1d27c8439286e3800a46.dir
+      size: 117031393
       nfiles: 1
   prepare_syntetic_data:
     cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv
