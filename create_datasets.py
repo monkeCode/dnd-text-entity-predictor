@@ -34,8 +34,14 @@ print("Loading data...")
 texts_df = pd.read_csv(args.texts)
 annotations_df = pd.read_csv(args.annotations)
 
+use_binary_labels = params["binary-mode"]
+
 # Создание словаря меток
-label_list = ['O', 'B-SPELL', 'I-SPELL', 'B-MONSTER', 'I-MONSTER', 'B-ITEM', 'I-ITEM']
+if use_binary_labels:
+    label_list = ['O', "B-OBJECT", "I-OBJECT"]
+    annotations_df["class"] = ["OBJECT"] * len(annotations_df)
+else:
+    label_list = ['O', 'B-SPELL', 'I-SPELL', 'B-MONSTER', 'I-MONSTER', 'B-ITEM', 'I-ITEM']
 label2id = {label: i for i, label in enumerate(label_list)}
 id2label = {i: label for i, label in enumerate(label_list)}
 
@@ -80,14 +86,15 @@ if use_syntetic:
     if lower_data:
         syntetic_texts["text"] = syntetic_texts["text"].apply(str.lower)
     
-
+    if use_binary_labels:
+        syntetic_annotations["class"] = ["OBJECT"] * len(syntetic_annotations)
 
     train_texts = pd.concat([train_texts, syntetic_texts])
     train_annotations= pd.concat([train_annotations, syntetic_annotations])
 
 # Создание датасетов
 print("Creating datasets...")
-train_dataset = NERDataset(train_texts, train_annotations, tokenizer,max_length , label2id)
+train_dataset = NERDataset(train_texts, train_annotations, tokenizer, max_length , label2id)
 val_dataset = NERDataset(val_texts, val_annotations, tokenizer, max_length, label2id)
 test_dataset = NERDataset(test_texts, test_annotations, tokenizer, max_length, label2id)
 

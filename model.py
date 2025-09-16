@@ -4,7 +4,6 @@ from transformers import AutoModelForTokenClassification
 from torchmetrics.classification import MulticlassPrecision, MulticlassRecall, MulticlassF1Score
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.optim import AdamW
 
 
 class NERModel(pl.LightningModule):

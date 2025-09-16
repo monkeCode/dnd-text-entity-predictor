@@ -41,20 +41,20 @@ stages:
     deps:
     - path: create_datasets.py
       hash: md5
-      md5: 25e9acaafec26a23ed6e521f73ce8d6c
-      size: 4673
+      md5: 678dbee8a1409d7a77f0ac0aa56ec301
+      size: 4963
     - path: data/annotations.csv
       hash: md5
       md5: ef7dbfcca0072b2612b10f1fcce67351
       size: 1483375
     - path: data/synt_annotations.csv
       hash: md5
-      md5: d2e115c9061cc9d04836c20ae49ac485
-      size: 2143655
+      md5: 3c487da7ed2970776886eb9ee31d7d4a
+      size: 2120623
     - path: data/synt_texts.csv
       hash: md5
-      md5: d271b2f5672faa5960e3bdbf8d78f979
-      size: 17300259
+      md5: b9075d2cd6023e7f0e63127d94183415
+      size: 16750144
     - path: data/texts.csv
       hash: md5
       md5: 19b3116e84fca9dc22a959d3fdbdef9e
@@ -65,15 +65,16 @@ stages:
       size: 3807
     params:
       params.yaml:
-        base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
+        base-model: cointegrated/rubert-tiny2
+        binary-mode: true
         lower_texts: true
         max-tokens: 200
         use_syntetic_data: true
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: f3f04762953c5cc8efcea8d6bbf875e6.dir
-      size: 130190742
+      md5: 530b620af5edb752011f8fda88f46bc6.dir
+      size: 120271606
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
@@ -93,49 +94,45 @@ stages:
     deps:
     - path: data/ner_dataset/labels.txt
       hash: md5
-      md5: 3569504ffcfd1ff47ea6011f904f0e8c
-      size: 52
+      md5: a2254097aba1c5e55040163327689913
+      size: 20
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 7685864517c89bb1acc892d639d9bc48
-      size: 10911819
+      md5: 130213c66f2888dab5692fecaf824abc
+      size: 10240203
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 7460c0d44e4d133ee6742e8526251de7
-      size: 107788497
+      md5: 58ea98b85b44bc93494b9b5eebc754e2
+      size: 99202065
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: 5ebd2543d938906b5640ad804bab030c
-      size: 10786629
+      md5: a1d02fadbe953061c8133f8d9a353699
+      size: 10125573
     - path: train_model.py
       hash: md5
       md5: 00bebbfa7d2a741f82a09d4d2db0b405
       size: 4628
     params:
       params.yaml:
-        base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
+        base-model: cointegrated/rubert-tiny2
         train:
           epoches: 70
           lr: 1e-05
           early_stopping_patience: 5
           batch-size: 64
           num-workers: 5
-          freeze: true
+          freeze: false
           dropout_rate: 0.1
           use_prev_label: false
           weights:
           - 1
           - 1
           - 1
-          - 1
-          - 1
-          - 1
-          - 1
     outs:
     - path: models
       hash: md5
-      md5: b71fef2b12e346ed403296127215f1d5.dir
-      size: 710176835
+      md5: 888b094f0391a850b198a9b015069b5c.dir
+      size: 116992875
       nfiles: 1
   prepare_syntetic_data:
     cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv
@@ -143,22 +140,22 @@ stages:
     deps:
     - path: data/lmstudio_responses.csv
       hash: md5
-      md5: 97d028b68d0fe64555861785e98cfb9f
-      size: 1971794
+      md5: 19e7ffbef57f7fca210052bc8c5fb9a0
+      size: 1971795
     - path: data/ya_generated.csv
       hash: md5
-      md5: 40353700b57bd79959956bc5573f7d14
-      size: 49928484
+      md5: 4a8fd0cc635e8012d8d180bf9ab3fe18
+      size: 49928485
     - path: prepare_syntetic_data.py
       hash: md5
-      md5: d3ef62124b98fcd1cefa00298c1d2e14
-      size: 6849
+      md5: 8327847565010be01e1e38dd355b974b
+      size: 7073
     outs:
     - path: data/synt_annotations.csv
       hash: md5
-      md5: d2e115c9061cc9d04836c20ae49ac485
-      size: 2143655
+      md5: 3c487da7ed2970776886eb9ee31d7d4a
+      size: 2120623
     - path: data/synt_texts.csv
       hash: md5
-      md5: d271b2f5672faa5960e3bdbf8d78f979
-      size: 17300259
+      md5: b9075d2cd6023e7f0e63127d94183415
+      size: 16750144

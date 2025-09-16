@@ -18,7 +18,7 @@ def parse_annotated_text(text: str) -> Tuple[str, List[Tuple[int, int, str]]]:
             - список аннотаций (start_pos, end_pos, annotation_class)
     """
     # Регулярное выражение для поиска аннотаций [текст](КЛАСС)
-    pattern = r'\[(.*?)\]\((.*?)\)'
+    pattern = r'\[(.*?)\]\s*\((.*?)\)'
     
     cleaned_text = ""
     annotations = []
@@ -86,7 +86,9 @@ def process_csv_files(input_files: List[str], output_texts_csv: str, output_anno
                     
                     # Парсим аннотации
                     cleaned_text, annotations = parse_annotated_text(sentence)
-                    
+                    if "MONSTER" in cleaned_text.upper() or "ITEM" in cleaned_text.upper() or "SPELL" in cleaned_text.upper():
+                        print("WARNING - text contains stop words", cleaned_text)
+                        continue
                     # Добавляем текст в коллекцию
                     text_data = {
                         'id': str(text_id_counter) + "_s",

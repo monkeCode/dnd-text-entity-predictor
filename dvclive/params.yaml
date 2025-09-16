@@ -1,31 +1,19 @@
-model_name: DeepPavlov/bert-base-bg-cs-pl-ru-cased
-num_labels: 7
+model_name: cointegrated/rubert-tiny2
+num_labels: 3
 id2label:
   0: O
-  1: B-SPELL
-  2: I-SPELL
-  3: B-MONSTER
-  4: I-MONSTER
-  5: B-ITEM
-  6: I-ITEM
+  1: B-OBJECT
+  2: I-OBJECT
 label2id:
   O: 0
-  B-SPELL: 1
-  I-SPELL: 2
-  B-MONSTER: 3
-  I-MONSTER: 4
-  B-ITEM: 5
-  I-ITEM: 6
+  B-OBJECT: 1
+  I-OBJECT: 2
 learning_rate: 1e-05
-freeze: true
+freeze: false
 hidden_size: 256
 dropout_rate: 0.1
 use_prev_label: false
 weights:
-- 0.1428571492433548
-- 0.1428571492433548
-- 0.1428571492433548
-- 0.1428571492433548
-- 0.1428571492433548
-- 0.1428571492433548
-- 0.1428571492433548
+- 0.3333333432674408
+- 0.3333333432674408
+- 0.3333333432674408

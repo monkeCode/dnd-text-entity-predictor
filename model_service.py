@@ -26,16 +26,16 @@ with open(CONFIG_PATH) as f:
 
 MODEL_PATH = sys.argv[1]
 BASE_MODEL_NAME =  config["base-model"]
-NUM_LABELS = 7
 LOWER = config["lower_texts"]
 
-SPLIT_BY_SENTENSES = False
+SPLIT_BY_SENTENSES = True
 
 with open('data/ner_dataset/labels.txt', 'r') as f:
         label_list = [line.strip() for line in f]
 
 id2label = {i: label for i, label in enumerate(label_list)}
 label2id = {label: i for i, label in enumerate(label_list)}
+NUM_LABELS = len(label_list)
 
 
 model:NERModel = NERModel(BASE_MODEL_NAME, NUM_LABELS, id2label, label2id, 0, use_prev_label=config["train"]["use_prev_label"], weights=config["train"]["weights"])
@@ -127,7 +127,7 @@ def predict_batch(item: Item):
         if LOWER:
             text = text.lower()
         if SPLIT_BY_SENTENSES:
-            sentens = re.split(r'(?<=[\n.])(?=\S)', text)
+            sentens = re.split(r'(?<=[\n\.])(?=\S)', text)
             tokens_with_preds = []
             offset = 0
             for s in sentens:

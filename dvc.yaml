@@ -30,6 +30,7 @@ stages:
     - max-tokens
     - lower_texts
     - use_syntetic_data
+    - binary-mode
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
       3
@@ -69,5 +70,5 @@ plots:
     x: step
 artifacts:
   best:
-    path: dvclive/artifacts/best-checkpoint.ckpt
+    path: dvclive/artifacts/best-checkpoint-v1.ckpt
     type: model
