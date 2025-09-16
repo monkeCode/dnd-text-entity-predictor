@@ -70,5 +70,5 @@ plots:
     x: step
 artifacts:
   best:
-    path: dvclive/artifacts/best-checkpoint-v1.ckpt
+    path: dvclive/artifacts/best-checkpoint.ckpt
     type: model

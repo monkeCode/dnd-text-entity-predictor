@@ -1,4 +1,4 @@
-base-model: cointegrated/rubert-tiny2
+base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
 
 max-tokens: 200
 lower_texts: true
@@ -11,7 +11,7 @@ train:
   early_stopping_patience: 5
   batch-size: 64
   num-workers: 5
-  freeze: false
+  freeze: true
   dropout_rate: 0.1
   use_prev_label: false
   weights:

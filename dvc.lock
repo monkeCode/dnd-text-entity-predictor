@@ -65,7 +65,7 @@ stages:
       size: 3807
     params:
       params.yaml:
-        base-model: cointegrated/rubert-tiny2
+        base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
         binary-mode: true
         lower_texts: true
         max-tokens: 200
@@ -73,8 +73,8 @@ stages:
     outs:
     - path: data/ner_dataset
       hash: md5
-      md5: 530b620af5edb752011f8fda88f46bc6.dir
-      size: 120271606
+      md5: aaed35f638aa8ebf77cfe4a051da1d52.dir
+      size: 128926710
       nfiles: 5
   pathfinder_downloader:
     cmd: python ./download_pathfinder.py --output data/pathfinder_json.csv --delay
@@ -98,30 +98,30 @@ stages:
       size: 20
     - path: data/ner_dataset/test_dataset.pt
       hash: md5
-      md5: 130213c66f2888dab5692fecaf824abc
-      size: 10240203
+      md5: 4c0e11095d5a381c2b3807a8b6195fa8
+      size: 10911819
     - path: data/ner_dataset/train_dataset.pt
       hash: md5
-      md5: 58ea98b85b44bc93494b9b5eebc754e2
-      size: 99202065
+      md5: 22aa672100dc87329bdc68beb65ec059
+      size: 106524497
     - path: data/ner_dataset/val_dataset.pt
       hash: md5
-      md5: a1d02fadbe953061c8133f8d9a353699
-      size: 10125573
+      md5: c436ff3983408d4d5c9d68cfc6e6f31f
+      size: 10786629
     - path: train_model.py
       hash: md5
       md5: 00bebbfa7d2a741f82a09d4d2db0b405
       size: 4628
     params:
       params.yaml:
-        base-model: cointegrated/rubert-tiny2
+        base-model: DeepPavlov/bert-base-bg-cs-pl-ru-cased
         train:
           epoches: 70
           lr: 1e-05
           early_stopping_patience: 5
           batch-size: 64
           num-workers: 5
-          freeze: false
+          freeze: true
           dropout_rate: 0.1
           use_prev_label: false
           weights:
@@ -131,8 +131,8 @@ stages:
     outs:
     - path: models
       hash: md5
-      md5: 888b094f0391a850b198a9b015069b5c.dir
-      size: 116992875
+      md5: fc01463913e3fc5f2c9b964ec5348329.dir
+      size: 710172739
       nfiles: 1
   prepare_syntetic_data:
     cmd: python prepare_syntetic_data.py --input_files data/ya_generated.csv data/lmstudio_responses.csv
