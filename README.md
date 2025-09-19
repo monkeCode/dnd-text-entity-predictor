@@ -223,22 +223,16 @@ flowchart TD
    cd dnd-text-entity-predictor
    ```
 
-2. **Установка зависимостей:**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Репродукция данных и запуск обучения:**
+2. **Репродукция данных и запуск обучения:**
 
    ```bash
    dvc exp run
    ```
 
-4. **Запуск сервиса:**
+3. **Запуск сервиса:**
 
    ```bash
-   python model_service.py
+   python model_service.py models/model.pth
    ```
 
 ### Docker container
